@@ -7,10 +7,10 @@ export type User = {
   profilePic: string;
   role: Number;
   cart: Array<CartData>;
+  buyed: Number;
 };
 
 type CartData = {
   id: string;
   productName: string;
-  boughtAt: string;
 };

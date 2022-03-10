@@ -1,5 +1,5 @@
 import { db, admin, storage } from "../../config/admin";
-import {User} from "./schema"
+import { User } from "./schema";
 
 export class Model {
   actionperformer: any;
@@ -28,6 +28,8 @@ export class Model {
                   ...inputs,
                   uid: userInfo.uid,
                   createdAt: new Date().toISOString(),
+                  profilePic:
+                    "https://firebasestorage.googleapis.com/v0/b/e-com-91cdf.appspot.com/o/121.jpg?alt=media",
                 },
                 { merge: true }
               );
