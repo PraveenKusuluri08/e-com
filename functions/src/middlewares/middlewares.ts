@@ -3,7 +3,7 @@ import * as express from "express"
 
 export const isAdmin =(req: any, res:express.Response, next:express.NextFunction) => {
   console.log("mhjhjhjkjk",req.user)
-  const userRef = db.collection("USERS").doc(req.user.uid).get();
+  const userRef = db.collection("USERS").doc(req.user).get();
 
   userRef
     .then((data:any) => {
