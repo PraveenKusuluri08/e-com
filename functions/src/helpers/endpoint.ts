@@ -20,8 +20,7 @@ export function endPoint(req: any,
       .then((decoded) => {
 
         console.log("decoded", decoded.uid);
-        req.user.uid= decoded.uid;
-        req.us
+        req.user= decoded.uid;
         return db
           .collection("USERS")
           .where("uid", "==", decoded.uid)
@@ -30,7 +29,6 @@ export function endPoint(req: any,
       })
       .then((userData) => {
         console.log(userData);
-        req.user.email = userData.docs[0].data().email;
         return next();
       })
       .catch((error) => {
