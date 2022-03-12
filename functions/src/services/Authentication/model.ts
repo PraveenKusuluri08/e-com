@@ -1,4 +1,4 @@
-import { db, admin, storage } from "../../config/admin";
+import { db, admin } from "../../config/admin";
 import { User } from "./schema";
 
 export class Model {
