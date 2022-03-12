@@ -1,10 +1,10 @@
 import { admin, db } from "../config/admin";
 import * as express from "express";
 
-interface User extends express.RequestHandler{
-  user:any;
-  headers: any;
-}
+// interface User extends express.RequestHandler{
+//   user:any;
+//   headers: any;
+// }
 
 export function endPoint(req: any,
   res: express.Response,
@@ -14,6 +14,9 @@ export function endPoint(req: any,
   } else {
     const bearer: any = req.headers["authorization"];
     const token: any = bearer.split("Bearer ")[1];
+    // if(bearer!=undefined){
+    //   return res.status(500).json({error:"Please provide token"})
+    // }
     return admin
       .auth()
       .verifyIdToken(token)

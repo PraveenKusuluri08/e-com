@@ -7,4 +7,5 @@ export type ProductSchema = {
   price: number;
   quantity: number;
   category: string;
+  isStockAvailable: boolean;
 };
