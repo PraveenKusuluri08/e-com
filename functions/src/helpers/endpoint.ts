@@ -21,8 +21,6 @@ export function endPoint(req: any,
       .auth()
       .verifyIdToken(token)
       .then((decoded) => {
-
-        console.log("decoded", decoded.uid);
         req.user= decoded.uid;
         return db
           .collection("USERS")
@@ -31,7 +29,6 @@ export function endPoint(req: any,
           .get();
       })
       .then((userData) => {
-        console.log(userData);
         return next();
       })
       .catch((error) => {

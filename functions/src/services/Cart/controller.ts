@@ -7,7 +7,6 @@ router.use(endPoint).post("/addtocart", (req: any, res: any) => {
   const obj = new CartModel(req.user);
 
   const prodData = req.body;
-  console.log("prodData",prodData);
   obj
     ._add_to_cart(prodData)
     .then((msg) => {

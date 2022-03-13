@@ -2,7 +2,6 @@ import { db } from "../config/admin";
 import * as express from "express"
 
 export const isAdmin =(req: any, res:express.Response, next:express.NextFunction) => {
-  console.log("mhjhjhjkjk",req.user)
   const userRef = db.collection("USERS").doc(req.user).get();
 
   userRef
