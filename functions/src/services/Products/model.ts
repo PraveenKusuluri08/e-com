@@ -5,7 +5,6 @@ export class ProductModel {
   actionperformer: any;
   constructor(user: any) {
     this.actionperformer = user;
-    console.log(this.actionperformer)
   }
   async _create_product(prodData: ProductSchema) {
     const productRef = db.collection("PRODUCTS").doc();

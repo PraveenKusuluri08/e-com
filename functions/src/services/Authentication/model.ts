@@ -19,7 +19,6 @@ export class Model {
             admin.auth().setCustomUserClaims(user.uid, { email: inputs.email });
           })
           .then(() => {
-            console.log(userInfo.uid);
             return db
               .collection("USERS")
               .doc(userInfo.uid)
@@ -38,7 +37,7 @@ export class Model {
             resolve("User created successfully");
           })
           .catch((err) => {
-            console.log(err);
+            console.error(err);
             reject(err);
           });
       }
