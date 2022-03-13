@@ -74,4 +74,33 @@ export class CartModel {
     } else {
     }
   }
+
+  async _delete_product_in_cart(productId: string) {
+    if (
+      await CartUtils._is_product_exists_in_cart(
+        productId,
+        this.actionperformer
+      )
+    ) {
+      return await db
+        .collection("USERS")
+        .doc(this.actionperformer)
+        .collection("CART")
+        .where("id", "==", productId)
+        .get()
+        .then(async (snap) => {
+          const batch = db.batch();
+          snap.docs.forEach((doc) => {
+            batch.delete(doc.ref);
+          });
+          await batch.commit();
+          console.log("Product deleted from cart");
+        })
+        .catch((err) => {
+          throw err;
+        });
+    } else {
+      throw "Something went wrong please check is product exists";
+    }
+  }
 }
