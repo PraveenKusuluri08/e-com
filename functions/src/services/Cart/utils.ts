@@ -51,4 +51,17 @@ export class CartUtils {
         else return false;
       });
   }
+  static async _is_product_exists_in_cart(prodId: string, userId: string) {
+    return db
+      .collection("USERS")
+      .doc(userId)
+      .collection("CART")
+      .where("id", "==", prodId)
+      .limit(1)
+      .get()
+      .then((snap) => {
+        if (snap.size == 1) return true;
+        else return false;
+      });
+  }
 }
