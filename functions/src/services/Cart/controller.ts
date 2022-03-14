@@ -1,3 +1,4 @@
+import { User } from "./../Authentication/schema";
 import * as express from "express";
 import { CartModel } from "./model";
 import { endPoint } from "../../helpers/endpoint";
@@ -33,4 +34,19 @@ router.use(endPoint).put("/decrementquantity", (req: any, res: any) => {
     });
 });
 
+router
+  .use(endPoint)
+  .delete("/deleteproduct", (req: any, res: express.Response) => {
+    const { productId } = req.query;
+    const obj = new CartModel(req.user);
+    obj
+      ._delete_product_in_cart(productId)
+      .then(() => {
+        return res.status(200).json({ message: "Product deleted from cart😞" });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(400).json({ error: err });
+      });
+  });
 export default router;
