@@ -53,7 +53,6 @@ export const uploadProductImage = (req: any, res: express.Response) => {
   });
 
   busboy.on("finish", async () => {
-    let promises: any[] = [];
 
     imagesToUpload.forEach(
       async (image: {
@@ -64,7 +63,7 @@ export const uploadProductImage = (req: any, res: express.Response) => {
         imageUrls.push(
           `https://firebasestorage.googleapis.com/v0/b/e-com-91cdf.appspot.com/o/${image.imageFileName}?alt=media`
         );
-        promises.push(
+        
           storage
             .bucket()
             .upload(image.filepath, {
@@ -80,25 +79,17 @@ export const uploadProductImage = (req: any, res: express.Response) => {
                 .collection("PRODUCTS")
                 .doc(productId)
                 .update({
-                  images: imageUrls,
+                  images:[{
+                    ...imageUrls
+                  }]
                 })
                 .then(() => {
-                  return;
+                  return res.status(201).json({message:"Imaged uploaded successfully"})
                 })
                 .catch((err) => {
                   return res.status(400).json({ error: err });
                 });
             })
-        );
-        try {
-          await Promise.all(promises);
-          return res
-            .status(201)
-            .end({ message: "Product images added successfully" });
-        } catch (err) {
-          console.log(err);
-          return res.status(500).json({ error: err });
-        }
       }
     );
   });
