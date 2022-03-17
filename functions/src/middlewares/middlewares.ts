@@ -9,7 +9,8 @@ export const isAdmin =(req: any, res:express.Response, next:express.NextFunction
       return data.data();
     })
     .then((info: any) => {
-      if (info.role === 0) {
+      console.log("info",info)
+      if (info.role !== "Admin") {
          return res
         .status(404)
         .json({ message: "You are not admin to access this content" });

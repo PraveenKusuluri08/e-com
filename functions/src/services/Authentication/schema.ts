@@ -5,6 +5,18 @@ export type User = {
   password: string;
   isExists: boolean;
   profilePic: string;
-  role: Number;
+  role: RoleList["role"];
   buyed: Number;
+  
 };
+
+type RoleList={
+  role:[
+    "Admin",
+    "Product Manager",
+    "Sales Manager",
+    "User",
+    "Inventory Manager",
+    "Discount Manager"
+  ]
+}
