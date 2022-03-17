@@ -1,7 +1,7 @@
 import { ProductModel } from "./model";
 import * as express from "express";
 import { endPoint } from "../../helpers/endpoint";
-import { isAdmin } from "../../middlewares/middlewares";
+import { isAdmin, isProductManager } from "../../middlewares/middlewares";
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.post(
 router.put(
   "/approveproducts",
   endPoint,
-  isAdmin,
+  isProductManager,
   (req: any, res: express.Response) => {
     const { productId } = req.query;
     const obj = new ProductModel(req.user);

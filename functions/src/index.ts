@@ -4,9 +4,8 @@ import Auth from "./services/Authentication/controller";
 import * as cors from "cors";
 import Products from "./services/Products/controller";
 import CartModel from "./services/Cart/controller";
-import { db } from "./config/admin";
+import { db} from "./config/admin";
 const app = express();
-
 app.use(express.json());
 app.use(cors({ origin: true }));
 
@@ -39,7 +38,6 @@ exports.pushApprovedProducts = functions.firestore
             .set(
               {
                 ...product,
-                createdAt: new Date().toISOString(),
               },
               { merge: true }
             )
