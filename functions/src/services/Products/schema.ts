@@ -8,4 +8,5 @@ export type ProductSchema = {
   quantity: number;
   category: string;
   isStockAvailable: boolean;
+  isAdminApproved:boolean;
 };

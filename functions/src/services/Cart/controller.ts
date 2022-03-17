@@ -1,4 +1,4 @@
-import { User } from "./../Authentication/schema";
+// import { User } from "./../Authentication/schema";
 import * as express from "express";
 import { CartModel } from "./model";
 import { endPoint } from "../../helpers/endpoint";

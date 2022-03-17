@@ -5,7 +5,11 @@ import { isAdmin } from "../../middlewares/middlewares";
 
 const router = express.Router();
 
-router.post("/admin/addProduct",endPoint,isAdmin, (req: any, res: express.Response) => {
+router.post(
+  "/admin/addProduct",
+  endPoint,
+  isAdmin,
+  (req: any, res: express.Response) => {
     const obj = new ProductModel(req.user);
 
     obj
@@ -18,6 +22,28 @@ router.post("/admin/addProduct",endPoint,isAdmin, (req: any, res: express.Respon
       .catch((err) => {
         return res.status(404).json({ error: "Failed to create product", err });
       });
-  });
+  }
+);
+
+router.put(
+  "/approveproducts",
+  endPoint,
+  isAdmin,
+  (req: any, res: express.Response) => {
+    const { productId } = req.query;
+    const obj = new ProductModel(req.user);
+
+    obj
+      ._approve_products(productId)
+      .then(() => {
+        console.log("Product approved");
+        return res.status(200).json({ message: "Product approved" });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(400).json({ error: err });
+      });
+  }
+);
 
 export default router;
