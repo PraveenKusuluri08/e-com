@@ -1,5 +1,5 @@
 import { db } from "../../config/admin";
-import { ProductSchema } from "./schema";
+import { ProductSchema, Reviews } from "./schema";
 
 export class ProductModel {
   actionperformer: any;
@@ -51,6 +51,33 @@ export class ProductModel {
         console.log("Product Approved");
       })
       .catch((err: any) => {
+        throw err;
+      });
+  }
+  async _review_product(productID: string, review: Reviews) {
+    return db
+      .collection("PRODUCTS")
+      .doc(productID)
+      .update({
+        review,
+      })
+      .then(() => {
+        //TODO:Send email notification
+        return db
+          .collection("ADMIN-NOTIFICATIONS")
+          .doc()
+          .set(
+            {
+              ...review,
+              productID: productID,
+              reviewAt: new Date().toISOString(),
+              content: `Someone reviewed product ${productID}`,
+            },
+            { merge: true }
+          );
+      })
+      .then(() => {})
+      .catch((err) => {
         throw err;
       });
   }
