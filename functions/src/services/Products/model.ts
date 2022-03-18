@@ -1,5 +1,6 @@
-import { db } from "../../config/admin";
+import { admin, db } from "../../config/admin";
 import { ProductSchema, Reviews } from "./schema";
+import { ProductUtils } from "./utils";
 
 export class ProductModel {
   actionperformer: any;
@@ -16,6 +17,7 @@ export class ProductModel {
           createdAt: new Date().toISOString(),
           productId: productRef.id,
           isStockAvailable: prodData.quantity > 0 ? true : false,
+          isAdminApproved: false,
         },
         { merge: true }
       )
@@ -54,31 +56,48 @@ export class ProductModel {
         throw err;
       });
   }
-  async _review_product(productID: string, review: Reviews) {
-    return db
-      .collection("PRODUCTS")
-      .doc(productID)
-      .update({
-        review,
-      })
-      .then(() => {
-        //TODO:Send email notification
-        return db
-          .collection("ADMIN-NOTIFICATIONS")
-          .doc()
-          .set(
+  async _review_product(productID: string, reviews: Reviews) {
+    console.log("dsfds",await ProductUtils._check_user_already_reviewed(this.actionperformer, productID))
+   if(!await ProductUtils._check_user_already_reviewed(this.actionperformer, productID)){
+    return (
+      db
+        .collection("PRODUCTS")
+        .doc(productID)
+        .set(
+          {
+            reviews: admin.firestore.FieldValue.arrayUnion({
+              ...reviews,
+              user: this.actionperformer,
+            }),
+          },
+          { merge: true }
+        )
+        .then(() => {
+          //TODO:Send email notification
+          const adminRef = db.collection("ADMIN-NOTIFICATIONS").doc();
+          adminRef.set(
             {
-              ...review,
+              ...reviews,
               productID: productID,
               reviewAt: new Date().toISOString(),
-              content: `Someone reviewed product ${productID}`,
+              content: `Someone reviewed your product`,
+              id: adminRef.id,
+              topic: "PRODUCT-REVIEWS",
+              uid: this.actionperformer,
             },
             { merge: true }
           );
-      })
-      .then(() => {})
-      .catch((err) => {
-        throw err;
-      });
+        })
+        // .then(() => {
+        //   //SEND MAIL TO THE ADMIN ACCOUNT
+        //   return;
+        // })
+        .catch((err) => {
+          throw err;
+        })
+    );
+  }else{
+    throw "Oops!! you already reviewed! if you want to review again then delete previous review"
   }
+}
 }

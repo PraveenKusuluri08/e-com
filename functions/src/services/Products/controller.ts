@@ -1,7 +1,7 @@
 import { ProductModel } from "./model";
 import * as express from "express";
-import { endPoint } from "../../helpers/endpoint";
-import { isAdmin, isProductManager } from "../../middlewares/middlewares";
+import { endPoint, endPoint_user } from "../../helpers/endpoint";
+import { isAdmin} from "../../middlewares/middlewares";
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.post(
 router.put(
   "/approveproducts",
   endPoint,
-  isProductManager,
+  isAdmin,
   (req: any, res: express.Response) => {
     const { productId } = req.query;
     const obj = new ProductModel(req.user);
@@ -45,5 +45,18 @@ router.put(
       });
   }
 );
+router.post("/reviewproducts", endPoint_user, (req: any, res: express.Response) => {
+  const obj = new ProductModel(req.user);
+  const { productId } = req.query;
+  obj
+    ._review_product(productId, req.body)
+    .then(() => {
+      return res.status(200).json({ message: "Product get reviewed" });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(400).json({ error: err });
+    });
+});
 
 export default router;
