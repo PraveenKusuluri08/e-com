@@ -1,4 +1,4 @@
-import { storage, db } from "../config/admin";
+import { storage, db, admin } from "../config/admin";
 import * as Busboy from "busboy";
 import * as express from "express";
 import * as os from "os";
@@ -53,7 +53,7 @@ export const uploadProductImage = (req: any, res: express.Response) => {
   });
 
   busboy.on("finish", async () => {
-
+    
     imagesToUpload.forEach(
       async (image: {
         imageFileName: any;
@@ -63,33 +63,36 @@ export const uploadProductImage = (req: any, res: express.Response) => {
         imageUrls.push(
           `https://firebasestorage.googleapis.com/v0/b/e-com-91cdf.appspot.com/o/${image.imageFileName}?alt=media`
         );
-        
-          storage
-            .bucket()
-            .upload(image.filepath, {
-              resumable: false,
+
+        storage
+          .bucket()
+          .upload(image.filepath, {
+            resumable: false,
+            metadata: {
               metadata: {
-                metadata: {
-                  contentType: image.mimeType,
-                },
+                contentType: image.mimeType,
               },
-            })
-            .then(() => {
-              return db
-                .collection("PRODUCTS")
-                .doc(productId)
-                .update({
-                  images:[{
-                    ...imageUrls
-                  }]
-                })
-                .then(() => {
-                  return res.status(201).json({message:"Imaged uploaded successfully"})
-                })
-                .catch((err) => {
-                  return res.status(400).json({ error: err });
-                });
-            })
+            },
+          })
+          .then(() => {
+            return db
+              .collection("PRODUCTS")
+              .doc(productId)
+              .set(
+                {
+                  images: admin.firestore.FieldValue.arrayUnion(...imageUrls),
+                },
+                { merge: true }
+              )
+              .then(() => {
+                return res
+                  .status(201)
+                  .json({ message: "Imaged uploaded successfully" });
+              })
+              .catch((err) => {
+                return res.status(400).json({ error: err });
+              });
+          });
       }
     );
   });
