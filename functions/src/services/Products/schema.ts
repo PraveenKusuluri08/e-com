@@ -7,12 +7,11 @@ export type ProductSchema = {
   quantity: number;
   category: string;
   isStockAvailable: boolean;
-  isAdminApproved:boolean;
-  review:Reviews
+  isAdminApproved: boolean;
+  reviews: Array<Reviews>;
 };
 
-
-export type Reviews={
-  message:string,
-  rating:number,
-}
+export type Reviews = {
+  message: string;
+  rating: number;
+};

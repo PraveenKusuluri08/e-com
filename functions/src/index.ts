@@ -4,7 +4,7 @@ import Auth from "./services/Authentication/controller";
 import * as cors from "cors";
 import Products from "./services/Products/controller";
 import CartModel from "./services/Cart/controller";
-import { db} from "./config/admin";
+import { db } from "./config/admin";
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: true }));
@@ -17,27 +17,24 @@ exports.app = functions.https.onRequest(app);
 
 exports.pushApprovedProducts = functions.firestore
   .document("ADMIN-NOTIFICATIONS/{docId}")
-  .onUpdate((snap, context) => {
-    const { docId } = context.params;
-    console.log("docId", docId);
+  .onUpdate((snap, _) => {
     const after = snap.after.data();
-    const previous = snap.before.data();
-    console.log(previous)
+    const previous = snap.before.data()
     if (after.approve) {
-      db.collection("PRODUCTS-NEED-TO-APPROVE")
+      return db.collection("PRODUCTS-NEED-TO-APPROVE")
         .doc(after.productId)
         .get()
         .then((snapData) => {
           return snapData.data();
         })
         .then((product) => {
-          console.log(product);
           return db
             .collection("PRODUCTS")
             .doc(after.productId)
             .set(
               {
                 ...product,
+                isAdminApproved: true,
               },
               { merge: true }
             )
@@ -46,10 +43,15 @@ exports.pushApprovedProducts = functions.firestore
                 .collection("PRODUCTS-NEED-TO-APPROVE")
                 .doc(after.productId)
                 .delete();
+            }).then(()=>{
+              return 
             })
             .catch((err: any) => {
               return err;
             });
         });
     }
+    return previous
   });
+
+//TODO:create a trigger if the product get reviewed then update the review to the products collection
