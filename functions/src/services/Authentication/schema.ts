@@ -5,18 +5,15 @@ export type User = {
   password: string;
   isExists: boolean;
   profilePic: string;
-  role: RoleList["role"];
+  role: Role;
   buyed: Number;
-  
 };
 
-type RoleList={
-  role:[
-    "Admin",
-    "Product Manager",
-    "Sales Manager",
-    "User",
-    "Inventory Manager",
-    "Discount Manager"
-  ]
+enum Role {
+  User,
+  Admin,
+  Product_Manager,
+  Sales_Manager,
+  Inventory_Manager,
+  Discount_Manager,
 }
