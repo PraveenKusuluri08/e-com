@@ -19,4 +19,21 @@ router.post("/createUser", (req: any, res: any) => {
 
 router.post("/uploadimage", endPoint, isAdmin, uploadProductImage);
 
+router.post("/forgotpassword", (req: any, res: express.Response) => {
+  const obj = new Model({});
+  obj
+    ._forgot_password(req.body)
+    .then(() => {
+      return res
+        .status(200)
+        .json({ message: "Reset password Link has been sent" });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res
+        .status(400)
+        .json({ error: "Failed to send reset password link" });
+    });
+});
+
 export default router;
