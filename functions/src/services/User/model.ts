@@ -19,7 +19,16 @@ class User {
         { merge: true }
       )
       .catch((err) => {
-          throw err
+        throw err;
+      });
+  }
+  async removeAddress(docId: string) {
+    return db
+      .collection(`USERS/${this.actionperformer}/ADDRESSES`)
+      .doc(docId)
+      .delete()
+      .catch((err) => {
+        throw err;
       });
   }
 }
