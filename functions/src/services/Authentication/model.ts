@@ -73,4 +73,29 @@ export class Model {
         });
     });
   }
+
+  async _change_password(password: string) {
+    return admin
+      .auth()
+      .updateUser(this.actionperformer, {
+        password: password,
+      })
+      .then(() => {
+        const batch = db.batch();
+        let logRef = db
+          .collection("USERS")
+          .doc(this.actionperformer)
+          .collection("LOGS")
+          .doc();
+
+        batch.update(logRef, {
+          message: "User changed password",
+          changedAt: new Date().toISOString(),
+        });
+        batch.commit();
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
 }

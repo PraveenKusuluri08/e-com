@@ -3,6 +3,7 @@ import * as express from "express";
 import { endPoint } from "../../helpers/endpoint";
 import { isAdmin } from "../../middlewares/middlewares";
 import { uploadProductImage } from "../../helpers/imageUpload";
+import { body, CustomValidator } from "express-validator";
 const router = express.Router();
 
 router.post("/createUser", (req: any, res: any) => {
@@ -36,4 +37,17 @@ router.post("/forgotpassword", (req: any, res: express.Response) => {
     });
 });
 
+router.post("/changePassword", endPoint, (req: any, res: express.Response) => {
+  const obj = new Model(req.user);
+  //TODO:Add express validator for password length for correct password
+  obj
+    ._change_password(req.body)
+    .then(() => {
+      return res.status(200).json({ message: "Password changed successfully" });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(400).json({ error: err });
+    });
+});
 export default router;
