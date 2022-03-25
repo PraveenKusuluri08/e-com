@@ -1,7 +1,6 @@
 import { admin, db } from "../../config/admin";
 import { ProductSchema, Reviews } from "./schema";
 import { ProductUtils } from "./utils";
-
 export class ProductModel {
   actionperformer: any;
   constructor(user: any) {
@@ -126,6 +125,24 @@ export class ProductModel {
         throw err;
       });
   }
-}
 
-//TODO:DIVIDE THE PRODUCTS INTO CATEGORY
+  //TODO:Use geo-fire and query the data for nearest price range
+  async get_products_by_price(price: number) {
+    console.log(price);
+    let products: any = [];
+    return db
+      .collection("PRODUCTS")
+      .where("category","==","electronics")
+      .where("price", "<=" &&">=", price)
+      .get()
+      .then((snap) => {
+        snap.docs.forEach((doc) => {
+          products.push(doc.data());
+        });
+        return products;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
+}

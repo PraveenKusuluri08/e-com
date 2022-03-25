@@ -82,4 +82,21 @@ router.get(
   }
 );
 
+router.get(
+  "/getproductsbyPrice",
+  endPoint,
+  (req: any, res: express.Response) => {
+    const obj = new ProductModel(req.user);
+    obj
+      .get_products_by_price(req.body.price)
+      .then((data) => {
+        console.log(data);
+        return res.status(200).json(data);
+      })
+      .catch((err) => {
+        return res.status(400).json(err);
+      });
+  }
+);
+
 export default router;
