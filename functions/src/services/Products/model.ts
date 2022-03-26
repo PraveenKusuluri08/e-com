@@ -1,7 +1,6 @@
 import { admin, db } from "../../config/admin";
 import { ProductSchema, Reviews } from "./schema";
 import { ProductUtils } from "./utils";
-
 export class ProductModel {
   actionperformer: any;
   constructor(user: any) {
@@ -57,47 +56,93 @@ export class ProductModel {
       });
   }
   async _review_product(productID: string, reviews: Reviews) {
-    console.log("dsfds",await ProductUtils._check_user_already_reviewed(this.actionperformer, productID))
-   if(!await ProductUtils._check_user_already_reviewed(this.actionperformer, productID)){
-    return (
-      db
-        .collection("PRODUCTS")
-        .doc(productID)
-        .set(
-          {
-            reviews: admin.firestore.FieldValue.arrayUnion({
-              ...reviews,
-              user: this.actionperformer,
-            }),
-          },
-          { merge: true }
-        )
-        .then(() => {
-          //TODO:Send email notification
-          const adminRef = db.collection("ADMIN-NOTIFICATIONS").doc();
-          adminRef.set(
+    console.log(
+      "dsfds",
+      await ProductUtils._check_user_already_reviewed(
+        this.actionperformer,
+        productID
+      )
+    );
+    if (
+      !(await ProductUtils._check_user_already_reviewed(
+        this.actionperformer,
+        productID
+      ))
+    ) {
+      return (
+        db
+          .collection("PRODUCTS")
+          .doc(productID)
+          .set(
             {
-              ...reviews,
-              productID: productID,
-              reviewAt: new Date().toISOString(),
-              content: `Someone reviewed your product`,
-              id: adminRef.id,
-              topic: "PRODUCT-REVIEWS",
-              uid: this.actionperformer,
+              reviews: admin.firestore.FieldValue.arrayUnion({
+                ...reviews,
+                user: this.actionperformer,
+              }),
             },
             { merge: true }
-          );
-        })
-        // .then(() => {
-        //   //SEND MAIL TO THE ADMIN ACCOUNT
-        //   return;
-        // })
-        .catch((err) => {
-          throw err;
-        })
-    );
-  }else{
-    throw "Oops!! you already reviewed! if you want to review again then delete previous review"
+          )
+          .then(() => {
+            //TODO:Send email notification
+            const adminRef = db.collection("ADMIN-NOTIFICATIONS").doc();
+            adminRef.set(
+              {
+                ...reviews,
+                productID: productID,
+                reviewAt: new Date().toISOString(),
+                content: `Someone reviewed your product`,
+                id: adminRef.id,
+                topic: "PRODUCT-REVIEWS",
+                uid: this.actionperformer,
+              },
+              { merge: true }
+            );
+          })
+          // .then(() => {
+          //   //SEND MAIL TO THE ADMIN ACCOUNT
+          //   return;
+          // })
+          .catch((err) => {
+            throw err;
+          })
+      );
+    } else {
+      throw "Oops!! you already reviewed! if you want to review again then delete previous review";
+    }
   }
-}
+  async get_product_by_category(category: string, depeartment: string) {
+    return db
+      .collection("PRODUCTS")
+      .where("category", "==", category)
+      .where("depeartment", "==", depeartment)
+      .get()
+      .then((data) => {
+        return data.docs.forEach((doc) => {
+          doc.data();
+        });
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
+
+  //TODO:Use geo-fire and query the data for nearest price range
+  async get_products_by_price(price: number) {
+    console.log(price);
+    let products: any = [];
+    return db
+      .collection("PRODUCTS")
+      .where("category","==","electronics")
+      .where("price", "<=" &&">=", price)
+      .get()
+      .then((snap) => {
+        snap.docs.forEach((doc) => {
+          products.push(doc.data());
+        });
+        return products;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
 }
