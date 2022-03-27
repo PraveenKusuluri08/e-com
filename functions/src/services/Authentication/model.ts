@@ -1,4 +1,5 @@
 import { db, admin } from "../../config/admin";
+import SendMails from "../../helpers/mail";
 import { User } from "./schema";
 import { AuthUtils } from "./utils";
 
@@ -46,27 +47,20 @@ export class Model {
     );
   }
 
-  async _forgot_password(email: string) {
+  async _forgot_password(email: string,subject:string,body:string) {
     AuthUtils._check_user_exists(email).then((data: any) => {
-      console.log(data);
-
+      console.log("data",data);
+      const obj = new SendMails()
       return admin
         .auth()
         .generatePasswordResetLink(email)
-        .then(() => {
-          return db.collection(`USERS`).where("email", "==", email).get();
-        })
-        .then((res) => {
-          const batch = db.batch();
-          res.forEach((doc) => {
-            let logRef = doc.ref.collection("LOGS").doc();
-            batch.update(logRef, {
-              message: "User requested to reset password",
-              email: email,
-              requestedAt: new Date().toISOString(),
-            });
-          });
-          batch.commit();
+        .then((link) => {
+          console.log(link)
+          //TODO:Handling the link here
+         return obj.mailToForgotPassword(email,subject,body,link)
+        }).then((info)=>{
+          console.log("object",info)
+          return info
         })
         .catch((err) => {
           throw err;

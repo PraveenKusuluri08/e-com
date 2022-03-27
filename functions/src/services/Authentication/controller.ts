@@ -21,9 +21,11 @@ router.post("/uploadimage", endPoint, isAdmin, uploadProductImage);
 
 router.post("/forgotpassword", (req: any, res: express.Response) => {
   const obj = new Model({});
+  const {to,subject,body}= req.body
+  console.log(req.body)
   obj
-    ._forgot_password(req.body)
-    .then(() => {
+    ._forgot_password(to,subject,body)
+    .then((info) => {
       return res
         .status(200)
         .json({ message: "Reset password Link has been sent" });
