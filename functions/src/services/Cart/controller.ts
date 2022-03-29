@@ -49,4 +49,18 @@ router
         return res.status(400).json({ error: err });
       });
   });
+
+router.get("/getGrandTotal", endPoint, (req: any, res: express.Response) => {
+  const obj = new CartModel(req.user);
+
+  obj
+    ._get_grand_total()
+    .then((data) => {
+      console.log(data);
+      return res.status(200).json({ TotalAmount: data });
+    })
+    .catch((err) => {
+      return res.status(400).json({ error: err });
+    });
+});
 export default router;
