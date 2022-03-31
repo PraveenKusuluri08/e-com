@@ -6,8 +6,9 @@ export class ProductModel {
   constructor(user: any) {
     this.actionperformer = user;
   }
+
   async _create_product(prodData: ProductSchema) {
-    const productRef = db.collection("PRODUCTS-NEED-TO-APPROVE").doc();
+    const productRef = db.collection("SELLER-PRODUCTS").doc();
     let total =
       prodData.actualPrice - (prodData.actualPrice * prodData.discount) / 100;
     let saving = prodData.actualPrice - total;
@@ -20,17 +21,19 @@ export class ProductModel {
           isStockAvailable: prodData.quantity > 0 ? true : false,
           isAdminApproved: false,
           total: Number(total.toFixed(2)),
+          isProductManagerApproved: false,
           saving,
         },
         { merge: true }
       )
       .then(() => {
-        db.collection("ADMIN-NOTIFICATIONS").doc().set(
+        db.collection("PRODUCT-MANAGER-NOTIFICATIONS").doc().set(
           {
             message: "New Product is waiting to approve",
             productId: productRef.id,
             productCreatedAt: new Date().toISOString(),
             approve: false,
+            sellerId: this.actionperformer,
           },
           { merge: true }
         );

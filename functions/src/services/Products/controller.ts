@@ -1,14 +1,14 @@
 import { ProductModel } from "./model";
 import * as express from "express";
 import { endPoint, endPoint_user } from "../../helpers/endpoint";
-import { isAdmin } from "../../middlewares/middlewares";
+import { isAdmin, isSeller } from "../../middlewares/middlewares";
 
 const router = express.Router();
 
 router.post(
-  "/admin/addProduct",
+  "/createProduct",
   endPoint,
-  isAdmin,
+  isSeller,
   (req: any, res: express.Response) => {
     const obj = new ProductModel(req.user);
 
@@ -98,5 +98,4 @@ router.get(
       });
   }
 );
-
 export default router;

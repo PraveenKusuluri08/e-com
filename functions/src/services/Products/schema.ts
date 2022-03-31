@@ -12,7 +12,8 @@ export type ProductSchema = {
   actualPrice: number;
   discount: number;
   total:number;
-  saving:number
+  saving:number;
+  isProductManagerApproved:false
 };
 
 export type Reviews = {
