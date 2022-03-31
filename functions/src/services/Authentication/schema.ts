@@ -7,6 +7,7 @@ export type User = {
   profilePic: string;
   role: Role;
   buyed: Number;
+  mobile:number
 };
 
 enum Role {
@@ -16,4 +17,5 @@ enum Role {
   Sales_Manager,
   Inventory_Manager,
   Discount_Manager,
+  Seller,
 }

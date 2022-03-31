@@ -3,7 +3,7 @@ import * as express from "express";
 import { endPoint } from "../../helpers/endpoint";
 import { isAdmin } from "../../middlewares/middlewares";
 import { uploadProductImage } from "../../helpers/imageUpload";
-import { body, CustomValidator } from "express-validator";
+import SendMails from "../../helpers/mail";
 const router = express.Router();
 
 router.post("/createUser", (req: any, res: any) => {
@@ -52,4 +52,6 @@ router.post("/changePassword", endPoint, (req: any, res: express.Response) => {
       return res.status(400).json({ error: err });
     });
 });
+
+router.use(endPoint,isAdmin).post("/createEmailTemplate",SendMails.createTemaplate)
 export default router;
