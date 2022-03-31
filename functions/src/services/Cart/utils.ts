@@ -10,7 +10,7 @@ export class CartUtils {
       .get()
       .then((snap) => {
         if (snap.size < 0) throw new Error("Document not exists");
-        else return snap.docs[0];
+        else return snap.docs[0].data();
       });
   }
   static async _is_Product_Exists_In_Cart(productId: string, userId: string) {

@@ -10,9 +10,6 @@ export class CartModel {
   }
   async _add_to_cart(productData: CartData) {
     CartUtils._is_Product_Exists(productData.id).then(async (data: any) => {
-      console.log(
-        await CartUtils._is_cart_empty(this.actionperformer, productData.id)
-      );
       if (
         await CartUtils._is_cart_empty(this.actionperformer, productData.id)
       ) {
@@ -28,6 +25,9 @@ export class CartModel {
             isProductExists: true,
             quantity: 1,
             docId: cartref.id,
+            amount: data.total,
+            saving: data.saving,
+            discount: data.discount,
           })
           .catch((error) => {
             throw error;
@@ -102,5 +102,28 @@ export class CartModel {
     } else {
       throw "Something went wrong please check is product exists";
     }
+  }
+  //TODO:Add the the grand total endpoint to caluclate
+  //TODO:the price of all products in the cart
+
+  async _get_grand_total() {
+    return db
+      .collection("USERS")
+      .doc(this.actionperformer)
+      .collection("CART")
+      .get()
+      .then((snap) => {
+        return snap.docs;
+      })
+      .then((snapDoc) => {
+        let grand_total = 0;
+        snapDoc.forEach((doc) => {
+          grand_total += doc.data().amount;
+        });
+        return grand_total;
+      })
+      .catch((err) => {
+        throw err;
+      });
   }
 }
