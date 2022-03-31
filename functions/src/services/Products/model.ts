@@ -8,7 +8,9 @@ export class ProductModel {
   }
   async _create_product(prodData: ProductSchema) {
     const productRef = db.collection("PRODUCTS-NEED-TO-APPROVE").doc();
-
+    let total =
+      prodData.actualPrice - (prodData.actualPrice * prodData.discount) / 100;
+    let saving = prodData.actualPrice - total;
     return productRef
       .set(
         {
@@ -17,6 +19,8 @@ export class ProductModel {
           productId: productRef.id,
           isStockAvailable: prodData.quantity > 0 ? true : false,
           isAdminApproved: false,
+          total: Number(total.toFixed(2)),
+          saving,
         },
         { merge: true }
       )
@@ -132,8 +136,8 @@ export class ProductModel {
     let products: any = [];
     return db
       .collection("PRODUCTS")
-      .where("category","==","electronics")
-      .where("price", "<=" &&">=", price)
+      .where("category", "==", "electronics")
+      .where("price", "<=" && ">=", price)
       .get()
       .then((snap) => {
         snap.docs.forEach((doc) => {

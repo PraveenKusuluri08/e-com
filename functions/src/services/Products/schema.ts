@@ -3,12 +3,16 @@ export type ProductSchema = {
   discription: string;
   details: object;
   images: Array<string>;
-  price: number;
   quantity: number;
   category: string;
   isStockAvailable: boolean;
   isAdminApproved: boolean;
   reviews: Array<Reviews>;
+  depeartment:string;
+  actualPrice: number;
+  discount: number;
+  total:number;
+  saving:number
 };
 
 export type Reviews = {
