@@ -8,7 +8,7 @@ dotenv.config();
 AWS.config.update({
   accessKeyId: process.env.ACCESS_KEY_ID,
   secretAccessKey: process.env.SECRET_ACCESS_KEY,
-  region:process.env.REGION,
+  region: process.env.REGION,
 });
 
 const ses = new AWS.SES({ apiVersion: "2010-12-01" });
@@ -108,7 +108,7 @@ class SendMails {
       },
       TemplateData: templateData,
     };
-   return ses.sendTemplatedEmail(params, (err, info) => {
+    return ses.sendTemplatedEmail(params, (err, info) => {
       if (err) {
         const mailRef = db
           .collection("MAILS")
