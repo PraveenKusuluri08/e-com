@@ -32,8 +32,12 @@ export class ProductModel {
             message: "New Product is waiting to approve",
             productId: productRef.id,
             productCreatedAt: new Date().toISOString(),
-            approve: false,
+            managerApprove: false,
             sellerId: this.actionperformer,
+            productName:prodData.productName,
+            actualPrice:prodData.actualPrice,
+            discount:prodData.discount,
+            productStock:prodData.quantity
           },
           { merge: true }
         );
@@ -43,6 +47,8 @@ export class ProductModel {
       });
   }
 
+  //TODO:this function is used for admin
+  //TODO:If admin approve then it directly moves to the PRODUCTS collection
   async _approve_products(productId: string) {
     return db
       .collection("ADMIN-NOTIFICATIONS")
@@ -62,6 +68,28 @@ export class ProductModel {
         throw err;
       });
   }
+
+  //TODO:If product Manager apprvoes product then it directly moves to the PRODUCT-NEED-TO-APPROVE collection
+  async _approve_products_product_manager(productId: string) {
+    return db
+      .collection("PRODUCT-MANAGER-NOTIFICATIONS")
+      .where("productId", "==", productId)
+      .get()
+      .then(async (data) => {
+        const batch = db.batch();
+        data.forEach((doc) => {
+          batch.update(doc.ref, {
+            managerApprove: true,
+          });
+        });
+        await batch.commit();
+        console.log("Product approve by product manager");
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
+
   async _review_product(productID: string, reviews: Reviews) {
     console.log(
       "dsfds",

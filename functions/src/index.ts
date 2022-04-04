@@ -22,8 +22,8 @@ exports.app = functions.https.onRequest(app);
 exports.pushApprovedProducts = functions.firestore
   .document("ADMIN-NOTIFICATIONS/{docId}")
   .onUpdate((snap, _) => {
-    const after:any = snap.after.data();
-    const previous = snap.before.data();
+    const after: any = snap.after.data();
+
     if (after.approve) {
       return db
         .collection("PRODUCTS-NEED-TO-APPROVE")
@@ -57,13 +57,13 @@ exports.pushApprovedProducts = functions.firestore
             });
         });
     }
-    return previous;
+    return after;
   });
 
 exports.onUserCreationOfAccount = functions.firestore
   .document("USERS/{uid}")
   .onCreate((snap, context) => {
-    console.log(snap.data())
+    console.log(snap.data());
     const mailObject = {
       firstName: snap.data().firstName,
       lastName: snap.data().lastName,
@@ -72,4 +72,60 @@ exports.onUserCreationOfAccount = functions.firestore
       createdAt: snap.data().createdAt,
     };
     return SendMails.sendTemplateEmail(mailObject);
+  });
+
+exports.onProductManagerApproveProducts = functions.firestore
+  .document("PRODUCT-MANAGER-NOTIFICATIONS/{prodId}")
+  .onUpdate((snap, _) => {
+    const after = snap.after.data();
+    // const before = snap.before.data();
+    if (after.managerApprove) {
+      return db
+        .collection("SELLER-PRODUCTS")
+        .doc(after.productId)
+        .get()
+        .then((snapData) => {
+          return snapData.data();
+        })
+        .then((product) => {
+          return db
+            .collection("PRODUCTS-NEED-TO-APPROVE")
+            .doc(after.productId)
+            .set(
+              {
+                ...product,
+                isProductManagerApproved: true,
+              },
+              { merge: true }
+            )
+            .then(() => {
+              return db
+                .collection("ADMIN-NOTIFICATIONS")
+                .doc()
+                .set({ ...after });
+            })
+            .then(() => {
+              return db
+                .collection("PRODUCT-MANAGER-APPROVED-PRODUCTS")
+                .doc(after.productId)
+                .set({
+                  productId: after.productId,
+                  productName: after.productName,
+                });
+            })
+            .then(() => {
+              return db
+                .collection("PRODUCT-MANAGER-NOTIFICATIONS")
+                .doc(after.productId)
+                .delete();
+            })
+            .then(() => {
+              return;
+            })
+            .catch((err: any) => {
+              return err;
+            });
+        });
+    }
+    return after;
   });
