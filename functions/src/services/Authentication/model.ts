@@ -2,14 +2,20 @@ import { db, admin } from "../../config/admin";
 import SendMails from "../../helpers/mail";
 import { User } from "./schema";
 import { AuthUtils } from "./utils";
-
+import { validationResult } from "express-validator";
+import * as express from "express";
 export class Model {
   actionperformer: any;
   constructor(user: object) {
     this.actionperformer = user;
   }
 
-  async _create_user(inputs: User) {
+  async _create_user(inputs: User, req: express.Request) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log(errors.array()[0])
+      throw errors.array()[0].msg;
+    }
     let userInfo: any = {};
     return new Promise(
       (resolve: (name: string) => any, reject: (err: string) => any) => {
@@ -21,12 +27,19 @@ export class Model {
             admin.auth().setCustomUserClaims(user.uid, { email: inputs.email });
           })
           .then(() => {
+            //TODO:Later use crypto module and hash the password
+            //TODO:As of now remove password from the db
+            let inputsToSave: any = {};
+            Object.entries(inputs).forEach(([key, value]) => {
+              if (key !== "password" && key !== "conformPassword")
+                inputsToSave[key] = value;
+            });
             return db
               .collection("USERS")
               .doc(userInfo.uid)
               .set(
                 {
-                  ...inputs,
+                  ...inputsToSave,
                   uid: userInfo.uid,
                   createdAt: new Date().toISOString(),
                   profilePic:
@@ -47,20 +60,21 @@ export class Model {
     );
   }
 
-  async _forgot_password(email: string,subject:string,body:string) {
+  async _forgot_password(email: string, subject: string, body: string) {
     AuthUtils._check_user_exists(email).then((data: any) => {
-      console.log("data",data);
-      const obj = new SendMails()
+      console.log("data", data);
+      const obj = new SendMails();
       return admin
         .auth()
         .generatePasswordResetLink(email)
         .then((link) => {
-          console.log(link)
+          console.log(link);
           //TODO:Handling the link here
-         return obj.mailToForgotPassword(email,subject,body,link)
-        }).then((info)=>{
-          console.log("object",info)
-          return info
+          return obj.mailToForgotPassword(email, subject, body, link);
+        })
+        .then((info) => {
+          console.log("object", info);
+          return info;
         })
         .catch((err) => {
           throw err;
