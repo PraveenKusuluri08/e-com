@@ -1,7 +1,7 @@
 import { ProductModel } from "./model";
 import * as express from "express";
 import { endPoint, endPoint_user } from "../../helpers/endpoint";
-import { isAdmin, isSeller } from "../../middlewares/middlewares";
+import { isAdmin, isSeller,isProductManager} from "../../middlewares/middlewares";
 
 const router = express.Router();
 
@@ -35,6 +35,26 @@ router.put(
 
     obj
       ._approve_products(productId)
+      .then(() => {
+        console.log("Product approved");
+        return res.status(200).json({ message: "Product approved" });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res.status(400).json({ error: err });
+      });
+  }
+);
+router.put(
+  "/productManager/approveproducts",
+  endPoint,
+  isProductManager,
+  (req: any, res: express.Response) => {
+    const { productId } = req.query;
+    const obj = new ProductModel(req.user);
+
+    obj
+      ._approve_products_product_manager(productId)
       .then(() => {
         console.log("Product approved");
         return res.status(200).json({ message: "Product approved" });

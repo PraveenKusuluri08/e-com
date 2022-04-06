@@ -151,5 +151,13 @@ class SendMails {
       }
     });
   }
+
+  static createProductTemplate(req:express.Request,res:express.Response){
+    // const params={
+    //   Template:{
+
+    //   }
+    // }
+  }
 }
 export default SendMails;
