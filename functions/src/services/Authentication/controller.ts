@@ -4,28 +4,49 @@ import { endPoint } from "../../helpers/endpoint";
 import { isAdmin } from "../../middlewares/middlewares";
 import { uploadProductImage } from "../../helpers/imageUpload";
 import SendMails from "../../helpers/mail";
+import ErrorHandlers from "../../helpers/errorHandlers";
+import { body, check } from "express-validator";
 const router = express.Router();
 
-router.post("/createUser", (req: any, res: any) => {
-  const obj = new Model(req.user);
-  obj
-    ._create_user(req.body)
-    .then((message) => {
-      return res.status(200).json({ message });
-    })
-    .catch((err) => {
-      return res.status(404).json({ err });
-    });
-});
+router.post(
+  "/createUser",
+  body("email").isEmail().normalizeEmail().withMessage("Please check email!!"),
+  check("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be more than 6 characters")
+    .isLength({ max: 25 }),
+  check(
+    "conformPassword",
+    "please check Password and Conform Password are not same"
+  )
+    .notEmpty()
+    .withMessage("Conform password must not be empty")
+    .exists()
+    .custom((value, { req }) => value === req.body.password),
+  (req: any, res: any) => {
+    const obj = new Model(req.user);
+    obj
+      ._create_user(req.body, req)
+      .then((message) => {
+        return res.status(200).json({ message });
+      })
+      .catch((err) => {
+        console.log(err);
+        return res
+          .status(404)
+          .json({ error: ErrorHandlers.generateAuthCreateUserError(err) });
+      });
+  }
+);
 
 router.post("/uploadimage", endPoint, isAdmin, uploadProductImage);
 
 router.post("/forgotpassword", (req: any, res: express.Response) => {
   const obj = new Model({});
-  const {to,subject,body}= req.body
-  console.log(req.body)
+  const { to, subject, body } = req.body;
+  console.log(req.body);
   obj
-    ._forgot_password(to,subject,body)
+    ._forgot_password(to, subject, body)
     .then((info) => {
       return res
         .status(200)
@@ -53,5 +74,7 @@ router.post("/changePassword", endPoint, (req: any, res: express.Response) => {
     });
 });
 
-router.use(endPoint,isAdmin).post("/createEmailTemplate",SendMails.createTemaplate)
+router
+  .use(endPoint, isAdmin)
+  .post("/createEmailTemplate", SendMails.createTemaplate);
 export default router;

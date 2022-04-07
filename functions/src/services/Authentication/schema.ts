@@ -3,6 +3,7 @@ export type User = {
   lastName: string;
   email: string;
   password: string;
+  conformPassword: string;
   isExists: boolean;
   profilePic: string;
   role: Role;
