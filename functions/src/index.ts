@@ -7,14 +7,14 @@ import Cart from "./services/Cart/controller";
 import { db } from "./config/admin";
 import User from "./services/User/controller";
 import SendMails from "./helpers/mail";
+
 const app = express();
+
 app.use(express.json());
 app.use(cors({ origin: true }));
-
 app.use("/auth", Auth);
 app.use("/products", Products);
 app.use("/cart", Cart);
-
 app.use("/user", User);
 
 exports.app = functions.https.onRequest(app);
@@ -102,7 +102,7 @@ exports.onProductManagerApproveProducts = functions.firestore
               return db
                 .collection("ADMIN-NOTIFICATIONS")
                 .doc()
-                .set({ ...after });
+                .set({ ...after,approve:false });
             })
             .then(() => {
               return db
@@ -114,10 +114,19 @@ exports.onProductManagerApproveProducts = functions.firestore
                 });
             })
             .then(() => {
+              //TODO:Instead of deleting document directly
+              //TODO:Send emails to the product managers in the db
+              //TODO:After sending successful mail to the user then delete the notification
               return db
                 .collection("PRODUCT-MANAGER-NOTIFICATIONS")
-                .doc(after.productId)
-                .delete();
+                .where("productId","==",after.productId)
+                .where("managerApprove","==",true).get().then(async snap=>{
+                  const batch= db.batch()
+                  snap.forEach((doc)=>{
+                    batch.delete(doc.ref)
+                  })
+                  await batch.commit()
+                })
             })
             .then(() => {
               return;

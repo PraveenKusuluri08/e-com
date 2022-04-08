@@ -152,12 +152,18 @@ class SendMails {
     });
   }
 
-  static createProductTemplate(req:express.Request,res:express.Response){
-    // const params={
-    //   Template:{
-
-    //   }
-    // }
+  static createProductTemplateManager(req:express.Request,res:express.Response){
+    const params={
+      Template:{
+        TemplateName:"NEW_PRODUCT",
+        HtmlPart:`<div>
+        <div style="display=flex;justify-content:center">
+            <h1>Hello <strong>{{manager}</strong>, one of the seller create a product for approval.</h1>
+            <img src={{image}} alt="product_image"/>
+          </div>
+        </div>`
+      }
+    }
   }
 }
 export default SendMails;
