@@ -34,10 +34,10 @@ export class ProductModel {
             productCreatedAt: new Date().toISOString(),
             managerApprove: false,
             sellerId: this.actionperformer,
-            productName:prodData.productName,
-            actualPrice:prodData.actualPrice,
-            discount:prodData.discount,
-            productStock:prodData.quantity
+            productName: prodData.productName,
+            actualPrice: prodData.actualPrice,
+            discount: prodData.discount,
+            productStock: prodData.quantity,
           },
           { merge: true }
         );
@@ -179,5 +179,29 @@ export class ProductModel {
       .catch((err) => {
         throw err;
       });
+  }
+
+  async request_stock(productId: string): Promise<void> {
+    let requestStockRef = db.collection("REQUEST-STOCK").doc();
+    let users = [];
+
+    users.push(this.actionperformer);
+    if (!(await ProductUtils.is_out_of_stock(productId))) {
+      //TODO:Update the frontend application link here,then user can directly navigate to the product page
+      throw new Error("Product is available please check the product");
+    } else {
+      requestStockRef
+        .set({
+          lastRequest: new Date().toISOString(),
+          users,
+          usersLength: users.length,
+          message: "Product stock required",
+          productId,
+          docId: requestStockRef.id,
+        })
+        .catch((err) => {
+          throw err;
+        });
+    }
   }
 }

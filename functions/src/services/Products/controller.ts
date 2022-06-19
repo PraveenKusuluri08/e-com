@@ -1,7 +1,11 @@
 import { ProductModel } from "./model";
 import * as express from "express";
 import { endPoint, endPoint_user } from "../../helpers/endpoint";
-import { isAdmin, isSeller,isProductManager} from "../../middlewares/middlewares";
+import {
+  isAdmin,
+  isSeller,
+  isProductManager,
+} from "../../middlewares/middlewares";
 
 const router = express.Router();
 
@@ -115,6 +119,22 @@ router.get(
       })
       .catch((err) => {
         return res.status(400).json(err);
+      });
+  }
+);
+
+router.post(
+  "/requeststock?projectId",
+  endPoint,
+  (req: any, res: express.Response) => {
+    const obj = new ProductModel(req.user);
+    obj
+      .request_stock(req.query.productId)
+      .then((info) => {
+        return res.status(202).json(info);
+      })
+      .catch((err) => {
+        throw err;
       });
   }
 );
