@@ -13,7 +13,7 @@ export class Model {
   async _create_user(inputs: User, req: express.Request) {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log(errors.array()[0])
+      console.log(errors.array()[0]);
       throw errors.array()[0].msg;
     }
     let userInfo: any = {};
@@ -82,11 +82,19 @@ export class Model {
     });
   }
 
-  async _change_password(password: string) {
+  async _change_password(
+    input: { password: string; conformPassword: string },
+    req: express.Request
+  ) {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log(errors.array()[0]);
+      throw errors.array()[0].msg;
+    }
     return admin
       .auth()
       .updateUser(this.actionperformer, {
-        password: password,
+        password: input.conformPassword,
       })
       .then(() => {
         const batch = db.batch();

@@ -60,19 +60,37 @@ router.post("/forgotpassword", (req: any, res: express.Response) => {
     });
 });
 
-router.post("/changePassword", endPoint, (req: any, res: express.Response) => {
-  const obj = new Model(req.user);
-  //TODO:Add express validator for password length for correct password
-  obj
-    ._change_password(req.body)
-    .then(() => {
-      return res.status(200).json({ message: "Password changed successfully" });
-    })
-    .catch((err) => {
-      console.error(err);
-      return res.status(400).json({ error: err });
-    });
-});
+router.post(
+  "/changePassword",
+  check("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be more than 6 characters")
+    .isLength({ max: 25 }),
+  check(
+    "conformPassword",
+    "please check Password and Conform Password are not same"
+  )
+    .notEmpty()
+    .withMessage("Conform password must not be empty")
+    .exists()
+    .custom((value, { req }) => value === req.body.password),
+  endPoint,
+  (req: any, res: express.Response) => {
+    const obj = new Model(req.user);
+    //TODO:Add express validator for password length for correct password
+    obj
+      ._change_password(req.body, req)
+      .then(() => {
+        return res
+          .status(200)
+          .json({ message: "Password changed successfully" });
+      })
+      .catch((err) => {
+        console.error(err);
+        return res.status(400).json({ error: err });
+      });
+  }
+);
 
 router
   .use(endPoint, isAdmin)
