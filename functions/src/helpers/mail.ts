@@ -102,7 +102,7 @@ class SendMails {
     const params = {
       Source: "webapp.ecom@gmail.com",
       Template: "WELCOME_EMAIL_ECOM",
-      ConfigurationSetName: "ecom-emails",
+      ConfigurationSetName: "email-set",
       Destination: {
         ToAddresses: [mailObj.email],
       },
@@ -151,19 +151,20 @@ class SendMails {
       }
     });
   }
-
-  static createProductTemplateManager(req:express.Request,res:express.Response){
-    const params={
-      Template:{
-        TemplateName:"NEW_PRODUCT",
-        HtmlPart:`<div>
-        <div style="display=flex;justify-content:center">
-            <h1>Hello <strong>{{manager}</strong>, one of the seller create a product for approval.</h1>
-            <img src={{image}} alt="product_image"/>
-          </div>
-        </div>`
-      }
-    }
-  }
+  //
+  // static createProductTemplateManager(req:express.Request,res:express.Response){
+  //   const params={
+  //     Template:{
+  //       TemplateName:"NEW_PRODUCT",
+  //       HtmlPart:`<div>
+  //       <div style="display=flex;justify-content:center">
+  //           <h1>Hello <strong>{{manager}</strong>, one of the seller create a product for approval.</h1>
+  //           <img src={{image}} alt="product_image"/>
+  //         </div>
+  //       </div>`
+  //     }
+  //
+  //     //TODO:Create the email template for the product manager for the reference of the products
+  // }
 }
-export default SendMails;
+export default SendMails

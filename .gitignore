@@ -69,3 +69,5 @@ node_modules/
 /functions/lib/config/admin.json
 /functions/src/config/admin.json
 /functions/lib
+
+/functions/src/helpers/PubSub/serviceKey.json

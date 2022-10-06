@@ -13,7 +13,7 @@ export class CartModel {
       if (
         await CartUtils._is_cart_empty(this.actionperformer, productData.id)
       ) {
-        const cartref = await db
+        const cartref = db
           .collection("USERS")
           .doc(this.actionperformer)
           .collection("CART")
@@ -28,6 +28,8 @@ export class CartModel {
             amount: data.total,
             saving: data.saving,
             discount: data.discount,
+            isFriendAdded:false,
+            uid:this.actionperformer
           })
           .catch((error) => {
             throw error;

@@ -28,11 +28,14 @@ export class CartUtils {
           snap.forEach(async (doc) => {
             batch.update(doc.ref, {
               quantity: admin.firestore.FieldValue.increment(1),
+              price: admin.firestore.FieldValue.increment(doc.data().amount),
+              saving:admin.firestore.FieldValue.increment(doc.data().saving)
             });
           });
           await batch.commit();
           console.log("Document count incremented");
         }
+        return
       })
       .catch((err) => {
         throw err;

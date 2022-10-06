@@ -1,28 +1,28 @@
-import * as functions from "firebase-functions";
-import * as express from "express";
-import Auth from "./services/Authentication/controller";
-import * as cors from "cors";
-import Products from "./services/Products/controller";
-import Cart from "./services/Cart/controller";
-import { db } from "./config/admin";
-import User from "./services/User/controller";
-import SendMails from "./helpers/mail";
+import * as functions from "firebase-functions"
+import * as express from "express"
+import Auth from "./services/Authentication/controller"
+import * as cors from "cors"
+import Products from "./services/Products/controller"
+import Cart from "./services/Cart/controller"
+import { db } from "./config/admin"
+import User from "./services/User/controller"
+import SendMails from "./helpers/mail"
 
-const app = express();
+const app = express()
 
-app.use(express.json());
-app.use(cors({ origin: true }));
-app.use("/auth", Auth);
-app.use("/products", Products);
-app.use("/cart", Cart);
-app.use("/user", User);
+app.use(express.json())
+app.use(cors({ origin: true }))
+app.use("/auth", Auth)
+app.use("/products", Products)
+app.use("/cart", Cart)
+app.use("/user", User)
 
-exports.app = functions.https.onRequest(app);
+exports.app = functions.https.onRequest(app)
 
 exports.pushApprovedProducts = functions.firestore
   .document("ADMIN-NOTIFICATIONS/{docId}")
   .onUpdate((snap, _) => {
-    const after: any = snap.after.data();
+    const after: any = snap.after.data()
 
     if (after.approve) {
       return db
@@ -30,7 +30,7 @@ exports.pushApprovedProducts = functions.firestore
         .doc(after.productId)
         .get()
         .then((snapData) => {
-          return snapData.data();
+          return snapData.data()
         })
         .then((product) => {
           return db
@@ -47,37 +47,37 @@ exports.pushApprovedProducts = functions.firestore
               return db
                 .collection("PRODUCTS-NEED-TO-APPROVE")
                 .doc(after.productId)
-                .delete();
+                .delete()
             })
             .then(() => {
-              return;
+              return
             })
             .catch((err: any) => {
-              return err;
-            });
-        });
+              return err
+            })
+        })
     }
-    return after;
-  });
+    return after
+  })
 
 exports.onUserCreationOfAccount = functions.firestore
   .document("USERS/{uid}")
   .onCreate((snap, context) => {
-    console.log(snap.data());
+    console.log(snap.data())
     const mailObject = {
       firstName: snap.data().firstName,
       lastName: snap.data().lastName,
       email: snap.data().email,
       profilePic: snap.data().profilePic,
       createdAt: snap.data().createdAt,
-    };
-    return SendMails.sendTemplateEmail(mailObject);
-  });
+    }
+    return SendMails.sendTemplateEmail(mailObject)
+  })
 
 exports.onProductManagerApproveProducts = functions.firestore
   .document("PRODUCT-MANAGER-NOTIFICATIONS/{prodId}")
   .onUpdate((snap, _) => {
-    const after = snap.after.data();
+    const after = snap.after.data()
     // const before = snap.before.data();
     if (after.managerApprove) {
       return db
@@ -85,7 +85,7 @@ exports.onProductManagerApproveProducts = functions.firestore
         .doc(after.productId)
         .get()
         .then((snapData) => {
-          return snapData.data();
+          return snapData.data()
         })
         .then((product) => {
           return db
@@ -102,7 +102,7 @@ exports.onProductManagerApproveProducts = functions.firestore
               return db
                 .collection("ADMIN-NOTIFICATIONS")
                 .doc()
-                .set({ ...after,approve:false });
+                .set({ ...after, approve: false })
             })
             .then(() => {
               return db
@@ -111,7 +111,7 @@ exports.onProductManagerApproveProducts = functions.firestore
                 .set({
                   productId: after.productId,
                   productName: after.productName,
-                });
+                })
             })
             .then(() => {
               //TODO:Instead of deleting document directly
@@ -119,22 +119,24 @@ exports.onProductManagerApproveProducts = functions.firestore
               //TODO:After sending successful mail to the user then delete the notification
               return db
                 .collection("PRODUCT-MANAGER-NOTIFICATIONS")
-                .where("productId","==",after.productId)
-                .where("managerApprove","==",true).get().then(async snap=>{
-                  const batch= db.batch()
-                  snap.forEach((doc)=>{
+                .where("productId", "==", after.productId)
+                .where("managerApprove", "==", true)
+                .get()
+                .then(async (snap) => {
+                  const batch = db.batch()
+                  snap.forEach((doc) => {
                     batch.delete(doc.ref)
                   })
                   await batch.commit()
                 })
             })
             .then(() => {
-              return;
+              return
             })
             .catch((err: any) => {
-              return err;
-            });
-        });
+              return err
+            })
+        })
     }
-    return after;
-  });
+    return after
+  })
